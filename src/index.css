@@ -1,13 +1,208 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root {
+  @apply h-full m-0 p-0;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+body {
+  background-color: #1e2630; /* Dark charcoal base color */
+  background-image: 
+    radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+    radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-position: 0 0, 10px 10px; /* Offset the second layer of dots */
+}
+
+.search-container {
+  @apply bg-white rounded-2xl shadow-lg;
+}
+
+.search-label {
+  background-color: black;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: bold;
+  margin-right: 0.5rem;
+}
+
+.search-bar-container {
+  display: flex;
+  align-items: center;
+}
+
+.search-bar {
+  flex-grow: 1;
+  margin-right: 0.5rem;
+  background-color: #f3f4f6; /* Very light grey */
+  border-radius: 9999px; /* Fully rounded */
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.clear-button {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af;
+  transition: color 0.2s;
+}
+
+.clear-button:hover {
+  color: #4b5563;
+}
+
+.search-input {
+  width: 100%;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  color: #1f2937; /* Dark grey for text */
+}
+
+.search-input::placeholder {
+  color: #9ca3af; /* Light grey for placeholder */
+}
+
+.search-button {
+  background-color: #4a5568; /* You can adjust this color */
+  color: white;
+  width: 2.5rem; /* Adjust size as needed */
+  height: 2.5rem; /* Adjust size as needed */
+  border-radius: 50%; /* Makes it circular */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.search-button:hover {
+  background-color: #374151; /* Darker shade for hover effect */
+}
+
+.search-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.chat-button {
+  @apply bg-white rounded-full transition-colors duration-200 shadow-md z-10 flex items-center justify-center;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 48px;
+  height: 48px;
+}
+
+.chat-button:hover {
+  @apply bg-gray-100;
+}
+
+.chat-icon {
+  @apply text-black text-xl;
+}
+
+.chat-container {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  width: 48px;
+  height: 48px;
+  transition: all 0.3s ease;
+}
+
+.chat-container.expanded {
+  height: 200px;
+}
+
+.chat-expanded {
+  position: absolute;
+  bottom: 48px;
+  right: 0;
+  width: 100%;
+  height: calc(100% - 48px);
+  background-color: white;
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.chat-circles {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 100%;
+}
+
+.chat-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.chat-circle:hover {
+  transform: scale(1.1);
+}
+
+.chat-circle.error {
+  background-color: #FF6B6B;
+}
+
+.chat-circle.generating {
+  background-color: #4ECDC4;
+}
+
+.chat-circle.keywords {
+  background-color: #45B7D1;
+}
+
+.tag {
+  @apply px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center justify-center cursor-pointer transition-colors duration-200;
+  height: 36px;
+}
+
+.tag:hover {
+  @apply opacity-80;
+}
+
+.tag.ring-2 {
+  @apply ring-offset-2;
+}
+
+.tag-error {
+  @apply bg-green-200 text-green-700;
+}
+
+.tag-generating {
+  @apply bg-purple-200 text-purple-700;
+}
+
+.tag-keywords {
+  @apply bg-blue-200 text-blue-700;
+}
+
+.tag-result {
+  @apply bg-gray-200 text-gray-700;
+}
+
+.photo-box {
+  @apply w-32 h-32 bg-gray-300 rounded-md mr-4;
+}
+
+.response-box {
+  @apply flex-grow bg-gray-100 p-4 rounded-md;
+}
+
+.command-list {
+  @apply mt-1 border border-gray-200 max-h-40 overflow-y-auto;
 }
