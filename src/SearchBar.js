@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { FaSearch, FaTimes, FaUser } from 'react-icons/fa';
+import { FaSearch, FaTimes, FaUser, FaShieldAlt, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import BaseResponse from './BaseResponse';
 import ResponseBubbles from './ResponseBubbles';
 import PlayerProfile from './PlayerProfile';

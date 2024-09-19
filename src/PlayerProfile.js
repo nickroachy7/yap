@@ -1,24 +1,10 @@
 import React, { useState } from 'react';
 import GameLog from './GameLog';
-import Awards from './Awards';
-import { FaShieldAlt, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { FaShieldAlt, FaTrophy, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 
 function PlayerProfile({ player }) {
-  const [showMoreSeasons, setShowMoreSeasons] = useState(false);
-
-  // Extended mock game log data
-  const gameLog = [
-    { date: '2023-05-10', opponent: 'PHX', result: 'W 115-105', min: 37, pts: 32, reb: 8, ast: 9 },
-    { date: '2023-05-07', opponent: 'LAC', result: 'W 122-112', min: 39, pts: 29, reb: 10, ast: 7 },
-    { date: '2023-05-04', opponent: 'SAC', result: 'L 110-118', min: 38, pts: 27, reb: 6, ast: 11 },
-    { date: '2023-05-01', opponent: 'GSW', result: 'W 120-110', min: 36, pts: 28, reb: 7, ast: 8 },
-    { date: '2023-04-28', opponent: 'DEN', result: 'L 108-115', min: 38, pts: 25, reb: 9, ast: 6 },
-    { date: '2023-04-26', opponent: 'MEM', result: 'W 125-118', min: 35, pts: 30, reb: 8, ast: 10 },
-    { date: '2023-04-23', opponent: 'POR', result: 'W 130-120', min: 34, pts: 26, reb: 7, ast: 12 },
-    { date: '2023-04-21', opponent: 'UTA', result: 'W 118-105', min: 36, pts: 31, reb: 9, ast: 8 },
-    { date: '2023-04-19', opponent: 'OKC', result: 'L 112-115', min: 37, pts: 28, reb: 8, ast: 7 },
-    { date: '2023-04-16', opponent: 'HOU', result: 'W 125-109', min: 33, pts: 24, reb: 6, ast: 9 },
-  ];
+  const [activeTab, setActiveTab] = useState('badges');
+  const [expandedSeasons, setExpandedSeasons] = useState({ '2023': true });
 
   // Function to truncate bio text
   const truncateBio = (text, maxLength) => {
@@ -51,8 +37,33 @@ function PlayerProfile({ player }) {
     }
   ];
 
+  const awardLabels = {
+    championships: "NBA Champion",
+    mvps: "NBA MVP",
+    allNBAFirstTeam: "All-NBA First Team",
+    allStar: "NBA All-Star",
+    scoringChampion: "NBA Scoring Champion",
+    dpoy: "NBA Defensive Player of the Year",
+    finalsMVP: "NBA Finals MVP",
+  };
+
+  const toggleSeason = (season) => {
+    setExpandedSeasons(prev => ({
+      ...prev,
+      [season]: !prev[season]
+    }));
+  };
+
+  // Mock data for game logs of different seasons
+  const gameLogSeasons = {
+    '2023': player.gameLog,
+    '2022': player.gameLog.map(game => ({ ...game, date: game.date.replace('2023', '2022') })),
+    '2021': player.gameLog.map(game => ({ ...game, date: game.date.replace('2023', '2021') }))
+  };
+
   return (
     <div className="player-profile mt-4">
+      {/* Player info section */}
       <div className="flex mb-4">
         <div className="w-40 h-40 bg-gray-200 rounded-lg mr-6 flex-shrink-0">
           {player.image && <img src={player.image} alt={player.name} className="w-full h-full object-cover rounded-lg" />}
@@ -72,72 +83,126 @@ function PlayerProfile({ player }) {
         </div>
       </div>
       
-      {player.badges && player.badges.length > 0 && (
-        <div className="mt-4 mb-6">
-          <div className="bg-white rounded-lg border border-gray-300 overflow-hidden">
-            <div className="bg-gray-50 px-4 py-2 border-b border-gray-200">
-              <h4 className="font-semibold text-sm">{player.name}'s 2023 Fantasy Badges</h4>
-            </div>
-            <div className="p-4">
-              <div className="flex flex-wrap -m-1">
-                {player.badges.slice(0, 10).map((badge, index) => (
-                  <div key={index} className="relative group m-1">
-                    <div className="flex items-center justify-center">
-                      <FaShieldAlt className={`text-3xl ${getBadgeColor(badge.type)}`} />
+      {/* Badges and Awards section */}
+      <div className="mt-4 mb-6">
+        <div className="bg-white rounded-lg border border-gray-300 overflow-hidden">
+          <div className="flex bg-gray-100 relative">
+            <button
+              className={`flex-1 px-4 py-3 text-sm font-semibold transition-all duration-200 ${
+                activeTab === 'badges'
+                  ? 'bg-white text-gray-900 rounded-t-lg border-b-2 border-gray-900'
+                  : 'text-gray-500 hover:bg-gray-200'
+              }`}
+              onClick={() => setActiveTab('badges')}
+            >
+              Fantasy Badges
+            </button>
+            <button
+              className={`flex-1 px-4 py-3 text-sm font-semibold transition-all duration-200 ${
+                activeTab === 'awards'
+                  ? 'bg-white text-gray-900 rounded-t-lg border-b-2 border-gray-900'
+                  : 'text-gray-500 hover:bg-gray-200'
+              }`}
+              onClick={() => setActiveTab('awards')}
+            >
+              Awards and Career Achievements
+            </button>
+          </div>
+          
+          <div className="border-t border-gray-200">
+            {activeTab === 'badges' && (
+              <div className="p-4">
+                <h5 className="font-semibold text-sm mb-2">2023</h5>
+                <div className="flex flex-wrap -m-1">
+                  {player.badges.slice(0, 10).map((badge, index) => (
+                    <div key={index} className="relative group m-1">
+                      <div className="flex items-center justify-center">
+                        <FaShieldAlt className={`text-3xl ${getBadgeColor(badge.type)}`} />
+                      </div>
+                      <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10 mb-1">
+                        {badge.name}
+                      </span>
                     </div>
-                    <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10 mb-1">
-                      {badge.name}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            {showMoreSeasons && (
-              <div className="border-t border-gray-200">
-                {previousSeasonsBadges.map((season, seasonIndex) => (
-                  <div key={seasonIndex} className="p-4 border-b border-gray-200 last:border-b-0">
-                    <h5 className="font-semibold text-sm mb-2">{player.name}'s {season.season} Fantasy Badges</h5>
-                    <div className="flex flex-wrap -m-1">
-                      {season.badges.map((badge, badgeIndex) => (
-                        <div key={badgeIndex} className="relative group m-1">
-                          <div className="flex items-center justify-center">
-                            <FaShieldAlt className={`text-3xl ${getBadgeColor(badge.type)}`} />
+                  ))}
+                </div>
+                <hr className="my-4 border-t border-gray-200 -mx-4" />
+                <div className="mt-2">
+                  {previousSeasonsBadges.map((season, seasonIndex) => (
+                    <React.Fragment key={seasonIndex}>
+                      {seasonIndex > 0 && <hr className={`border-t border-gray-200 -mx-4 ${expandedSeasons[season.season] ? 'my-2' : 'my-0.5'}`} />}
+                      <div className="py-0.5"> {/* Reduced padding */}
+                        <button 
+                          className="flex items-center justify-between w-full text-left font-semibold text-sm h-7" // Reduced height
+                          onClick={() => toggleSeason(season.season)}
+                        >
+                          <span>{season.season}</span>
+                          {expandedSeasons[season.season] ? <FaChevronUp /> : <FaChevronDown />}
+                        </button>
+                        {expandedSeasons[season.season] && (
+                          <div className="flex flex-wrap -m-1 mt-2">
+                            {season.badges.map((badge, badgeIndex) => (
+                              <div key={badgeIndex} className="relative group m-1">
+                                <div className="flex items-center justify-center">
+                                  <FaShieldAlt className={`text-3xl ${getBadgeColor(badge.type)}`} />
+                                </div>
+                                <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10 mb-1">
+                                  {badge.name}
+                                </span>
+                              </div>
+                            ))}
                           </div>
-                          <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10 mb-1">
-                            {badge.name}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+                        )}
+                      </div>
+                    </React.Fragment>
+                  ))}
+                </div>
               </div>
             )}
-            <div className="bg-gray-50 px-4 py-2 border-t border-gray-200">
-              <button
-                className="w-full text-sm font-medium text-gray-700 hover:text-gray-900 flex items-center justify-center"
-                onClick={() => setShowMoreSeasons(!showMoreSeasons)}
-              >
-                {showMoreSeasons ? (
-                  <>
-                    <FaChevronUp className="mr-2" />
-                    <span>Less</span>
-                  </>
-                ) : (
-                  <>
-                    <FaChevronDown className="mr-2" />
-                    <span>More Seasons</span>
-                  </>
-                )}
-              </button>
-            </div>
+            
+            {activeTab === 'awards' && (
+              <div className="p-4">
+                <ul className="list-none">
+                  {Object.entries(player).map(([key, value], index) => {
+                    if (typeof value === 'number' && key !== 'number' && awardLabels[key]) {
+                      return (
+                        <React.Fragment key={index}>
+                          <li className="flex justify-between items-center mb-2">
+                            <div className="flex items-center">
+                              <span className="font-semibold mr-2">{value}x {awardLabels[key]}</span>
+                            </div>
+                            <div className="flex">
+                              {Array.from({ length: value }).map((_, i) => (
+                                <FaTrophy key={i} className="text-yellow-400 ml-1" />
+                              ))}
+                            </div>
+                          </li>
+                          {index < Object.entries(player).length - 1 && (
+                            <hr className="my-2 border-t border-gray-200 mx-[-1rem]" />
+                          )}
+                        </React.Fragment>
+                      );
+                    }
+                    return null;
+                  })}
+                </ul>
+              </div>
+            )}
           </div>
         </div>
-      )}
-      
-      <Awards player={player} />
+      </div>
 
-      <GameLog games={player.gameLog} playerName={player.name} isNFL={player.sport === "NFL"} />
+      {/* Game Log section */}
+      <div className="mt-6">
+        <h3 className="text-xl font-semibold mb-3">{player.name}'s Game Log</h3>
+        <GameLog 
+          gameLogSeasons={gameLogSeasons}
+          playerName={player.name}
+          isNFL={player.sport === "NFL"}
+          showTitle={false}
+          expandedSeasons={expandedSeasons}
+          toggleSeason={toggleSeason}
+        />
+      </div>
     </div>
   );
 }

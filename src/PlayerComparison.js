@@ -4,6 +4,8 @@ import { FaShieldAlt, FaChevronDown, FaChevronUp, FaTrophy, FaMedal, FaStar } fr
 
 function PlayerComparison({ players }) {
   const [showMoreAwards, setShowMoreAwards] = useState(false);
+  const [expandedSeasons, setExpandedSeasons] = useState({ '2023': true });
+  const [activeTab, setActiveTab] = useState('badges');
   
   const statCategories = ['PPG', 'RPG', 'APG', 'FG%', '3P%', 'FT%'];
 
@@ -42,6 +44,20 @@ function PlayerComparison({ players }) {
     { date: '2023-04-16', opponent: 'HOU', result: 'W 125-109', min: 33, pts: 24, reb: 6, ast: 9 },
   ];
 
+  // Create mock gameLogSeasons for each player
+  const createMockGameLogSeasons = () => ({
+    '2023': mockGameLog,
+    '2022': mockGameLog.map(game => ({ ...game, date: game.date.replace('2023', '2022') })),
+    '2021': mockGameLog.map(game => ({ ...game, date: game.date.replace('2023', '2021') }))
+  });
+
+  const toggleSeason = (season) => {
+    setExpandedSeasons(prev => ({
+      ...prev,
+      [season]: !prev[season]
+    }));
+  };
+
   const renderAwardIcons = (count, Icon) => {
     return Array(count).fill().map((_, index) => <Icon key={index} className="text-yellow-400 ml-1" />);
   };
@@ -70,6 +86,107 @@ function PlayerComparison({ players }) {
     { label: "Finals MVP", countKey: "finalsMVP", Icon: FaTrophy },
   ];
 
+  const renderBadgesAndAwards = () => {
+    return (
+      <div className="mt-4">
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+          <div className="flex border-b border-gray-200">
+            <button
+              className={`flex-1 py-2 px-4 text-sm font-medium ${
+                activeTab === 'badges'
+                  ? 'text-gray-900 bg-white border-b-2 border-gray-900'
+                  : 'text-gray-500 bg-gray-50 hover:text-gray-700'
+              }`}
+              onClick={() => setActiveTab('badges')}
+            >
+              Fantasy Badges
+            </button>
+            <button
+              className={`flex-1 py-2 px-4 text-sm font-medium ${
+                activeTab === 'awards'
+                  ? 'text-gray-900 bg-white border-b-2 border-gray-900'
+                  : 'text-gray-500 bg-gray-50 hover:text-gray-700'
+              }`}
+              onClick={() => setActiveTab('awards')}
+            >
+              Awards and Career Achievements
+            </button>
+          </div>
+          <div className="flex relative">
+            {players.map((player, playerIndex) => (
+              <React.Fragment key={playerIndex}>
+                <div className="w-1/2 p-4">
+                  {activeTab === 'badges' && (
+                    <div>
+                      <h5 className="font-semibold text-sm mb-2">2023</h5>
+                      <div className="flex flex-wrap -m-1">
+                        {player.badges.slice(0, 10).map((badge, index) => (
+                          <div key={index} className="relative group m-1">
+                            <div className="flex items-center justify-center">
+                              <FaShieldAlt className={`text-3xl ${getBadgeColor(badge.type)}`} />
+                            </div>
+                            <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10 mb-1">
+                              {badge.name}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      <hr className="my-4 border-t border-gray-200 -mx-4" />
+                      {['2022', '2021'].map((season, seasonIndex) => (
+                        <React.Fragment key={seasonIndex}>
+                          <div className="py-0.5">
+                            <button 
+                              className="flex items-center justify-between w-full text-left font-semibold text-sm h-7"
+                              onClick={() => toggleSeason(season)}
+                            >
+                              <span>{season}</span>
+                              {expandedSeasons[season] ? <FaChevronUp /> : <FaChevronDown />}
+                            </button>
+                            {expandedSeasons[season] && (
+                              <div className="flex flex-wrap -m-1 mt-2">
+                                {player.badges.slice(0, 6).map((badge, badgeIndex) => (
+                                  <div key={badgeIndex} className="relative group m-1">
+                                    <div className="flex items-center justify-center">
+                                      <FaShieldAlt className={`text-3xl ${getBadgeColor(badge.type)}`} />
+                                    </div>
+                                    <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10 mb-1">
+                                      {badge.name}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                          {seasonIndex < 1 && <hr className={`border-t border-gray-200 -mx-4 ${expandedSeasons[season] ? 'my-2' : 'my-0.5'}`} />}
+                        </React.Fragment>
+                      ))}
+                    </div>
+                  )}
+                  {activeTab === 'awards' && (
+                    <div>
+                      {[...mainAwards, ...additionalAwards].map((award, index) => (
+                        <div key={index} className="flex items-center justify-between mb-2">
+                          <span className="text-sm">{award.label}</span>
+                          <div className="flex items-center">
+                            <span className="mr-2 text-sm font-semibold">{player[award.countKey]}</span>
+                            {renderAwardIcons(player[award.countKey], award.Icon)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                {playerIndex === 0 && (
+                  <div className="absolute top-0 bottom-0 left-1/2 w-px bg-gray-200"></div>
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="player-comparison mt-4">
       {/* Player info and VS section */}
@@ -90,136 +207,82 @@ function PlayerComparison({ players }) {
         </div>
       </div>
 
-      {/* Combined Badges comparison */}
-      <div className="mb-8">
-        <div className="bg-white rounded-lg border border-gray-300 overflow-hidden">
-          <div className="bg-gray-50 px-4 py-2 border-b border-gray-200 flex justify-between">
-            <h4 className="font-semibold text-sm">{players[0].name}'s Badges</h4>
-            <h4 className="font-semibold text-sm">{players[1].name}'s Badges</h4>
+      {/* Badges and Awards comparison */}
+      {renderBadgesAndAwards()}
+
+      {/* Add more space here */}
+      <div className="mt-12">
+        {/* Stats comparison box */}
+        <h3 className="text-xl font-semibold mb-3">Player Comparison</h3>
+        <div className="flex">
+          {/* Left player stats */}
+          <div className="w-1/6 pr-2 flex flex-col justify-between">
+            {statCategories.map((category, index) => (
+              <div key={index} className="bg-gray-100 rounded-lg p-1 mb-2 text-center h-12 flex items-center justify-center">
+                <div className="font-semibold text-sm">{players[0].stats[category]}</div>
+              </div>
+            ))}
           </div>
-          <div className="flex">
-            {players.map((player, playerIndex) => (
-              <div key={playerIndex} className={`w-1/2 p-4 ${playerIndex === 0 ? 'border-r border-gray-200' : ''}`}>
-                <div className={`flex flex-wrap -m-1 ${playerIndex === 1 ? 'justify-end' : ''}`}>
-                  {player.badges && player.badges.slice(0, 10).map((badge, index) => (
-                    <div key={index} className="relative group m-1">
-                      <div className="flex items-center justify-center">
-                        <FaShieldAlt className={`text-3xl ${getBadgeColor(badge.type)}`} />
-                      </div>
-                      <span className={`absolute bottom-full bg-gray-800 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10 mb-1 ${
-                        playerIndex === 0 ? 'left-0' : 'right-0'
-                      }`}>
-                        {badge.name}
-                      </span>
+
+          {/* Comparison bars */}
+          <div className="w-2/3 bg-white rounded-lg border border-gray-300 overflow-hidden">
+            <div className="stats-comparison">
+              {statCategories.map((category, index) => {
+                const maxStat = getMaxStat(category);
+                const player0Value = parseFloat(players[0].stats[category]);
+                const player1Value = parseFloat(players[1].stats[category]);
+                const player0Percentage = calculatePercentage(player0Value, maxStat);
+                const player1Percentage = calculatePercentage(player1Value, maxStat);
+                const player0IsBetter = player0Value > player1Value;
+
+                return (
+                  <div key={index} className="p-3 border-b last:border-b-0">
+                    <div className="text-center font-medium mb-1 text-sm">{category}</div>
+                    <div className="flex h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full ${player0IsBetter ? 'bg-green-500 rounded-l-full' : 'bg-gray-400'}`}
+                        style={{ width: `${player0Percentage / 2}%`, marginLeft: `${50 - player0Percentage / 2}%` }}
+                      ></div>
+                      <div
+                        className={`h-full ${!player0IsBetter ? 'bg-green-500 rounded-r-full' : 'bg-gray-400'}`}
+                        style={{ width: `${player1Percentage / 2}%` }}
+                      ></div>
                     </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Combined Awards comparison */}
-      <div className="mb-8">
-        <div className="bg-white rounded-lg border border-gray-300 overflow-hidden">
-          <div className="bg-gray-50 px-4 py-2 border-b border-gray-200 flex justify-between">
-            <h4 className="font-semibold text-sm">{players[0].name}'s Awards</h4>
-            <h4 className="font-semibold text-sm">{players[1].name}'s Awards</h4>
-          </div>
-          <div className="flex">
-            {players.map((player, playerIndex) => (
-              <div key={playerIndex} className={`w-1/2 ${playerIndex === 0 ? 'border-r border-gray-200' : ''}`}>
-                <div className="divide-y divide-gray-200">
-                  {mainAwards.map((award, index) => renderAwardRow(award.label, player[award.countKey], award.Icon))}
-                  
-                  {showMoreAwards && (
-                    <>
-                      {additionalAwards.map((award, index) => renderAwardRow(award.label, player[award.countKey], award.Icon))}
-                    </>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-          {/* Show More button inside the bounding box */}
-          <div className="bg-gray-50 px-4 py-2 border-t border-gray-200">
-            <button
-              className="w-full text-sm font-medium text-gray-700 hover:text-gray-900 flex items-center justify-center"
-              onClick={() => setShowMoreAwards(!showMoreAwards)}
-            >
-              {showMoreAwards ? (
-                <>
-                  <FaChevronUp className="mr-2" />
-                  <span>Less</span>
-                </>
-              ) : (
-                <>
-                  <FaChevronDown className="mr-2" />
-                  <span>More</span>
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Stats comparison box */}
-      <h3 className="text-xl font-semibold mb-3">Player Comparison</h3>
-      <div className="flex">
-        {/* Left player stats */}
-        <div className="w-1/6 pr-2 flex flex-col justify-between">
-          {statCategories.map((category, index) => (
-            <div key={index} className="bg-gray-100 rounded-lg p-1 mb-2 text-center h-12 flex items-center justify-center">
-              <div className="font-semibold text-sm">{players[0].stats[category]}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Comparison bars */}
-        <div className="w-2/3 bg-white rounded-lg border border-gray-300 overflow-hidden">
-          <div className="stats-comparison">
-            {statCategories.map((category, index) => {
-              const maxStat = getMaxStat(category);
-              const player0Value = parseFloat(players[0].stats[category]);
-              const player1Value = parseFloat(players[1].stats[category]);
-              const player0Percentage = calculatePercentage(player0Value, maxStat);
-              const player1Percentage = calculatePercentage(player1Value, maxStat);
-              const player0IsBetter = player0Value > player1Value;
-
-              return (
-                <div key={index} className="p-3 border-b last:border-b-0">
-                  <div className="text-center font-medium mb-1 text-sm">{category}</div>
-                  <div className="flex h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full ${player0IsBetter ? 'bg-green-500 rounded-l-full' : 'bg-gray-400'}`}
-                      style={{ width: `${player0Percentage / 2}%`, marginLeft: `${50 - player0Percentage / 2}%` }}
-                    ></div>
-                    <div
-                      className={`h-full ${!player0IsBetter ? 'bg-green-500 rounded-r-full' : 'bg-gray-400'}`}
-                      style={{ width: `${player1Percentage / 2}%` }}
-                    ></div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Right player stats */}
-        <div className="w-1/6 pl-2 flex flex-col justify-between">
-          {statCategories.map((category, index) => (
-            <div key={index} className="bg-gray-100 rounded-lg p-1 mb-2 text-center h-12 flex items-center justify-center">
-              <div className="font-semibold text-sm">{players[1].stats[category]}</div>
+                );
+              })}
             </div>
-          ))}
+          </div>
+
+          {/* Right player stats */}
+          <div className="w-1/6 pl-2 flex flex-col justify-between">
+            {statCategories.map((category, index) => (
+              <div key={index} className="bg-gray-100 rounded-lg p-1 mb-2 text-center h-12 flex items-center justify-center">
+                <div className="font-semibold text-sm">{players[1].stats[category]}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Game Logs */}
-      {players.map((player, index) => (
-        <GameLog key={index} games={mockGameLog} playerName={player.name} />
-      ))}
+      <div className="mt-8">
+        <div className="flex flex-col space-y-8">
+          {players.map((player, index) => (
+            <div key={index}>
+              <h4 className="text-lg font-semibold mb-2">{player.name}'s Game Log</h4>
+              <GameLog 
+                gameLogSeasons={createMockGameLogSeasons()}
+                playerName={player.name}
+                isNFL={player.sport === "NFL"}
+                showTitle={false}
+                expandedSeasons={expandedSeasons}
+                toggleSeason={toggleSeason}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
