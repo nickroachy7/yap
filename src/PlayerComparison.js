@@ -86,8 +86,163 @@ function PlayerComparison({ players }) {
     { label: "Finals MVP", countKey: "finalsMVP", Icon: FaTrophy },
   ];
 
-  const renderBadgesAndAwards = () => {
+  const renderBadgesContent = () => {
     return (
+      <div className="flex -mx-4">
+        {players.map((player, playerIndex) => (
+          <div key={playerIndex} className="w-1/2 px-4">
+            <h5 className="font-semibold text-sm mb-2">2023</h5>
+            <div className="flex flex-wrap -m-1">
+              {player.badges.slice(0, 10).map((badge, index) => (
+                <div key={index} className="relative group m-1">
+                  <div className="flex items-center justify-center">
+                    <FaShieldAlt className={`text-3xl ${getBadgeColor(badge.type)}`} />
+                  </div>
+                  <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10 mb-1">
+                    {badge.name}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <hr className="my-4 border-t border-gray-200 -mx-4" />
+            {['2022', '2021'].map((season, seasonIndex) => (
+              <React.Fragment key={seasonIndex}>
+                <div className="py-0.5">
+                  <button 
+                    className="flex items-center justify-between w-full text-left font-semibold text-sm h-7"
+                    onClick={() => toggleSeason(season)}
+                  >
+                    <span>{season}</span>
+                    {expandedSeasons[season] ? <FaChevronUp /> : <FaChevronDown />}
+                  </button>
+                  {expandedSeasons[season] && (
+                    <div className="flex flex-wrap -m-1 mt-2">
+                      {player.badges.slice(0, 6).map((badge, badgeIndex) => (
+                        <div key={badgeIndex} className="relative group m-1">
+                          <div className="flex items-center justify-center">
+                            <FaShieldAlt className={`text-3xl ${getBadgeColor(badge.type)}`} />
+                          </div>
+                          <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10 mb-1">
+                            {badge.name}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                {seasonIndex < 1 && <hr className={`border-t border-gray-200 -mx-4 ${expandedSeasons[season] ? 'my-2' : 'my-0.5'}`} />}
+              </React.Fragment>
+            ))}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  const renderAwardsContent = () => {
+    return (
+      <div className="flex -mx-4">
+        {players.map((player, playerIndex) => (
+          <div key={playerIndex} className="w-1/2 px-4">
+            {[...mainAwards, ...additionalAwards].map((award, index) => (
+              <div key={index} className="flex items-center justify-between mb-2">
+                <span className="text-sm">{award.label}</span>
+                <div className="flex items-center">
+                  <span className="mr-2 text-sm font-semibold">{player[award.countKey]}</span>
+                  {renderAwardIcons(player[award.countKey], award.Icon)}
+                </div>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  const renderComparisonContent = () => {
+    return (
+      <div className="space-y-4">
+        {statCategories.map((category, index) => {
+          const maxStat = getMaxStat(category);
+          const player0Value = parseFloat(players[0].stats[category]);
+          const player1Value = parseFloat(players[1].stats[category]);
+          const player0Percentage = calculatePercentage(player0Value, maxStat);
+          const player1Percentage = calculatePercentage(player1Value, maxStat);
+          const player0IsBetter = player0Value > player1Value;
+
+          return (
+            <div key={index} className="flex items-center">
+              <div className="w-1/4 text-right pr-4">
+                <span className={`font-semibold ${player0IsBetter ? 'text-green-600' : 'text-gray-600'}`}>
+                  {players[0].stats[category]}
+                </span>
+              </div>
+              <div className="w-1/2">
+                <div className="text-center text-sm font-medium text-gray-700 mb-1">
+                  {category}
+                </div>
+                <div className="flex h-3 bg-gray-200 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full ${player0IsBetter ? 'bg-green-500' : 'bg-blue-500'}`}
+                    style={{ width: `${player0Percentage}%` }}
+                  ></div>
+                  <div
+                    className={`h-full ${!player0IsBetter ? 'bg-green-500' : 'bg-blue-500'}`}
+                    style={{ width: `${player1Percentage}%` }}
+                  ></div>
+                </div>
+              </div>
+              <div className="w-1/4 text-left pl-4">
+                <span className={`font-semibold ${!player0IsBetter ? 'text-green-600' : 'text-gray-600'}`}>
+                  {players[1].stats[category]}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'badges':
+        return renderBadgesContent();
+      case 'awards':
+        return renderAwardsContent();
+      case 'comparison':
+        return renderComparisonContent();
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="player-comparison mt-4">
+      {/* Player info and VS section */}
+      <div className="flex justify-between items-center relative mb-8">
+        {players.map((player, index) => (
+          <div key={index} className={`player-column ${index === 0 ? 'pr-4' : 'pl-4'} flex ${index === 0 ? 'flex-row' : 'flex-row-reverse'} items-center`}>
+            <div className="w-32 h-32 bg-gray-200 flex-shrink-0 rounded-lg overflow-hidden border-2 border-gray-300">
+              {player.image && <img src={player.image} alt={player.name} className="w-full h-full object-cover" />}
+            </div>
+            <div className={`flex flex-col ${index === 0 ? 'ml-4 items-start' : 'mr-4 items-end'}`}>
+              <h2 className="text-2xl font-bold">{player.name}</h2>
+              <p className="text-base text-gray-600">{player.team}</p>
+              {player.number && player.position && player.nickname && (
+                <p className="text-sm text-gray-500">
+                  #{player.number} | {player.position} | {player.nickname}
+                </p>
+              )}
+            </div>
+          </div>
+        ))}
+        <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gray-200 rounded-full w-12 h-12 flex items-center justify-center">
+          <span className="text-lg font-bold">VS</span>
+        </div>
+      </div>
+
+      {/* Tabs and content */}
       <div className="mt-4">
         <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
           <div className="flex border-b border-gray-200">
@@ -111,156 +266,19 @@ function PlayerComparison({ players }) {
             >
               Awards and Career Achievements
             </button>
+            <button
+              className={`flex-1 py-2 px-4 text-sm font-medium ${
+                activeTab === 'comparison'
+                  ? 'text-gray-900 bg-white border-b-2 border-gray-900'
+                  : 'text-gray-500 bg-gray-50 hover:text-gray-700'
+              }`}
+              onClick={() => setActiveTab('comparison')}
+            >
+              Player Comparison
+            </button>
           </div>
-          <div className="flex relative">
-            {players.map((player, playerIndex) => (
-              <React.Fragment key={playerIndex}>
-                <div className="w-1/2 p-4">
-                  {activeTab === 'badges' && (
-                    <div>
-                      <h5 className="font-semibold text-sm mb-2">2023</h5>
-                      <div className="flex flex-wrap -m-1">
-                        {player.badges.slice(0, 10).map((badge, index) => (
-                          <div key={index} className="relative group m-1">
-                            <div className="flex items-center justify-center">
-                              <FaShieldAlt className={`text-3xl ${getBadgeColor(badge.type)}`} />
-                            </div>
-                            <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10 mb-1">
-                              {badge.name}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                      <hr className="my-4 border-t border-gray-200 -mx-4" />
-                      {['2022', '2021'].map((season, seasonIndex) => (
-                        <React.Fragment key={seasonIndex}>
-                          <div className="py-0.5">
-                            <button 
-                              className="flex items-center justify-between w-full text-left font-semibold text-sm h-7"
-                              onClick={() => toggleSeason(season)}
-                            >
-                              <span>{season}</span>
-                              {expandedSeasons[season] ? <FaChevronUp /> : <FaChevronDown />}
-                            </button>
-                            {expandedSeasons[season] && (
-                              <div className="flex flex-wrap -m-1 mt-2">
-                                {player.badges.slice(0, 6).map((badge, badgeIndex) => (
-                                  <div key={badgeIndex} className="relative group m-1">
-                                    <div className="flex items-center justify-center">
-                                      <FaShieldAlt className={`text-3xl ${getBadgeColor(badge.type)}`} />
-                                    </div>
-                                    <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10 mb-1">
-                                      {badge.name}
-                                    </span>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                          {seasonIndex < 1 && <hr className={`border-t border-gray-200 -mx-4 ${expandedSeasons[season] ? 'my-2' : 'my-0.5'}`} />}
-                        </React.Fragment>
-                      ))}
-                    </div>
-                  )}
-                  {activeTab === 'awards' && (
-                    <div>
-                      {[...mainAwards, ...additionalAwards].map((award, index) => (
-                        <div key={index} className="flex items-center justify-between mb-2">
-                          <span className="text-sm">{award.label}</span>
-                          <div className="flex items-center">
-                            <span className="mr-2 text-sm font-semibold">{player[award.countKey]}</span>
-                            {renderAwardIcons(player[award.countKey], award.Icon)}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                {playerIndex === 0 && (
-                  <div className="absolute top-0 bottom-0 left-1/2 w-px bg-gray-200"></div>
-                )}
-              </React.Fragment>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  return (
-    <div className="player-comparison mt-4">
-      {/* Player info and VS section */}
-      <div className="flex justify-between items-center relative mb-8">
-        {players.map((player, index) => (
-          <div key={index} className={`player-column ${index === 0 ? 'pr-4' : 'pl-4'} flex ${index === 0 ? 'flex-row' : 'flex-row-reverse'} items-center`}>
-            <div className="w-32 h-32 bg-gray-200 flex-shrink-0 rounded-lg overflow-hidden border-2 border-gray-300">
-              {player.image && <img src={player.image} alt={player.name} className="w-full h-full object-cover" />}
-            </div>
-            <div className={`flex flex-col ${index === 0 ? 'ml-4 items-start' : 'mr-4 items-end'}`}>
-              <h2 className="text-2xl font-bold">{player.name}</h2>
-              <p className="text-base text-gray-600">{player.team}</p>
-            </div>
-          </div>
-        ))}
-        <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gray-200 rounded-full w-12 h-12 flex items-center justify-center">
-          <span className="text-lg font-bold">VS</span>
-        </div>
-      </div>
-
-      {/* Badges and Awards comparison */}
-      {renderBadgesAndAwards()}
-
-      {/* Add more space here */}
-      <div className="mt-12">
-        {/* Stats comparison box */}
-        <h3 className="text-xl font-semibold mb-3">Player Comparison</h3>
-        <div className="flex">
-          {/* Left player stats */}
-          <div className="w-1/6 pr-2 flex flex-col justify-between">
-            {statCategories.map((category, index) => (
-              <div key={index} className="bg-gray-100 rounded-lg p-1 mb-2 text-center h-12 flex items-center justify-center">
-                <div className="font-semibold text-sm">{players[0].stats[category]}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Comparison bars */}
-          <div className="w-2/3 bg-white rounded-lg border border-gray-300 overflow-hidden">
-            <div className="stats-comparison">
-              {statCategories.map((category, index) => {
-                const maxStat = getMaxStat(category);
-                const player0Value = parseFloat(players[0].stats[category]);
-                const player1Value = parseFloat(players[1].stats[category]);
-                const player0Percentage = calculatePercentage(player0Value, maxStat);
-                const player1Percentage = calculatePercentage(player1Value, maxStat);
-                const player0IsBetter = player0Value > player1Value;
-
-                return (
-                  <div key={index} className="p-3 border-b last:border-b-0">
-                    <div className="text-center font-medium mb-1 text-sm">{category}</div>
-                    <div className="flex h-2 bg-gray-200 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full ${player0IsBetter ? 'bg-green-500 rounded-l-full' : 'bg-gray-400'}`}
-                        style={{ width: `${player0Percentage / 2}%`, marginLeft: `${50 - player0Percentage / 2}%` }}
-                      ></div>
-                      <div
-                        className={`h-full ${!player0IsBetter ? 'bg-green-500 rounded-r-full' : 'bg-gray-400'}`}
-                        style={{ width: `${player1Percentage / 2}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Right player stats */}
-          <div className="w-1/6 pl-2 flex flex-col justify-between">
-            {statCategories.map((category, index) => (
-              <div key={index} className="bg-gray-100 rounded-lg p-1 mb-2 text-center h-12 flex items-center justify-center">
-                <div className="font-semibold text-sm">{players[1].stats[category]}</div>
-              </div>
-            ))}
+          <div className="p-6">
+            {renderTabContent()}
           </div>
         </div>
       </div>
