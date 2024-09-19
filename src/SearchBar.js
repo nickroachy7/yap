@@ -25,6 +25,7 @@ function SearchBar() {
   const [showUserProfile, setShowUserProfile] = useState(false);
   const [pollData, setPollData] = useState(null);
   const [gradeData, setGradeData] = useState(null);
+  const [sport, setSport] = useState('nba');
 
   const inputRef = useRef(null);
 
@@ -242,6 +243,12 @@ function SearchBar() {
         setResponse('');
         setResponseBubbles(mockPlayerData.relatedBubbles);
         setSearchType('Player');
+      } else if (lowercaseInput === 'tom brady') {
+        const mockPlayerData = await mockPlayerAPI(lowercaseInput);
+        setPlayerData(mockPlayerData);
+        setResponse('');
+        setResponseBubbles(mockPlayerData.relatedBubbles);
+        setSearchType('Player');
       } else {
         const mockResponse = await mockSearchAPI(inputValue);
         setResponse(mockResponse.text);
@@ -362,6 +369,15 @@ function SearchBar() {
           { name: 'Minutes Leader', type: 'record' },
           { name: 'Player of the Week', type: 'record' },
         ],
+        gameLog: [
+          { date: '2023-01-08', opponent: 'ATL', result: 'W 120-105', stats: { minutes: 35, points: 28, rebounds: 8, assists: 7 } },
+          { date: '2023-01-01', opponent: 'CAR', result: 'W 115-100', stats: { minutes: 38, points: 32, rebounds: 10, assists: 9 } },
+          { date: '2022-12-25', opponent: 'ARI', result: 'L 105-110', stats: { minutes: 40, points: 25, rebounds: 7, assists: 8 } },
+          { date: '2022-12-18', opponent: 'CIN', result: 'W 110-95', stats: { minutes: 36, points: 30, rebounds: 9, assists: 8 } },
+          { date: '2022-12-11', opponent: 'SF', result: 'W 125-100', stats: { minutes: 37, points: 35, rebounds: 7, assists: 10 } },
+          { date: '2022-12-05', opponent: 'NO', result: 'W 110-105', stats: { minutes: 39, points: 28, rebounds: 8, assists: 9 } },
+        ],
+        sport: "NBA"
       };
     } else if (query === 'stephen curry') {
       return {
@@ -403,6 +419,68 @@ function SearchBar() {
           { name: 'All-Time 3PM Leader', type: 'record' },
           { name: 'Player of the Month', type: 'record' },
         ],
+        gameLog: [
+          { date: '2023-01-08', opponent: 'ATL', result: 'W 120-105', stats: { minutes: 35, points: 28, rebounds: 8, assists: 7 } },
+          { date: '2023-01-01', opponent: 'CAR', result: 'W 115-100', stats: { minutes: 38, points: 32, rebounds: 10, assists: 9 } },
+          { date: '2022-12-25', opponent: 'ARI', result: 'L 105-110', stats: { minutes: 40, points: 25, rebounds: 7, assists: 8 } },
+          { date: '2022-12-18', opponent: 'CIN', result: 'W 110-95', stats: { minutes: 36, points: 30, rebounds: 9, assists: 8 } },
+          { date: '2022-12-11', opponent: 'SF', result: 'W 125-100', stats: { minutes: 37, points: 35, rebounds: 7, assists: 10 } },
+          { date: '2022-12-05', opponent: 'NO', result: 'W 110-105', stats: { minutes: 39, points: 28, rebounds: 8, assists: 9 } },
+        ],
+        sport: "NBA"
+      };
+    } else if (query === 'tom brady') {
+      return {
+        name: "Tom Brady",
+        number: "12",
+        team: "Tampa Bay Buccaneers",
+        position: "Quarterback",
+        nickname: "TB12",
+        image: "https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/2330.png&w=350&h=254",
+        championships: 7,
+        mvps: 3,
+        allProFirstTeam: 3,
+        proBowl: 15,
+        passingYardsLeader: 4,
+        passingTouchdownsLeader: 4,
+        superBowlMVP: 5,
+        bio: "Tom Brady is an American football quarterback for the Tampa Bay Buccaneers of the NFL. He is widely considered to be the greatest quarterback of all time.",
+        stats: { 
+          "Pass Yards": "84,520", 
+          "Pass TDs": "624", 
+          "Completions": "7,263", 
+          "Comp %": "64.3", 
+          "INT": "203", 
+          "Passer Rating": "97.2" 
+        },
+        relatedBubbles: [
+          { text: 'Buccaneers', type: 'tag-keywords', color: "bg-red-200 hover:bg-red-300" },
+          { text: 'NFL', type: 'tag-keywords', color: "bg-blue-200 hover:bg-blue-300" },
+          { text: 'Super Bowl', type: 'tag-keywords', color: "bg-green-200 hover:bg-green-300" },
+        ],
+        badges: [
+          { name: 'Super Bowl Champion', type: 'champion' },
+          { name: 'NFL MVP', type: 'mvp' },
+          { name: 'Pro Bowl', type: 'allStar' },
+          { name: 'Passing Yards Leader', type: 'scoring' },
+          { name: 'Passing TDs Leader', type: 'scoring' },
+          { name: 'All-Pro Team', type: 'allStar' },
+          { name: 'Super Bowl MVP', type: 'mvp' },
+          { name: 'Comeback Player of the Year', type: 'mvp' },
+          { name: '600 TD Club', type: 'milestone' },
+          { name: '80K Passing Yards', type: 'milestone' },
+          { name: 'Perfect Season', type: 'record' },
+          { name: 'NFL 100th Anniversary Team', type: 'milestone' },
+        ],
+        gameLog: [
+          { date: '2023-01-08', opponent: 'ATL', result: 'L 30-17', stats: { passYards: 281, passTD: 1, int: 1, rating: 84.5 } },
+          { date: '2023-01-01', opponent: 'CAR', result: 'W 30-24', stats: { passYards: 432, passTD: 3, int: 0, rating: 127.3 } },
+          { date: '2022-12-25', opponent: 'ARI', result: 'W 19-16', stats: { passYards: 281, passTD: 1, int: 2, rating: 72.2 } },
+          { date: '2022-12-18', opponent: 'CIN', result: 'L 34-23', stats: { passYards: 312, passTD: 3, int: 2, rating: 96.0 } },
+          { date: '2022-12-11', opponent: 'SF', result: 'L 35-7', stats: { passYards: 253, passTD: 1, int: 2, rating: 63.7 } },
+          { date: '2022-12-05', opponent: 'NO', result: 'W 17-16', stats: { passYards: 281, passTD: 2, int: 1, rating: 89.7 } },
+        ],
+        sport: "NFL"
       };
     }
   };

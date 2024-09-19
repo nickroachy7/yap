@@ -36,3 +36,30 @@
     transform: rotate(360deg);
   }
 }
+
+/* NFL-specific styles */
+.nfl-player {
+  background-color: #013369; /* NFL blue */
+  color: white;
+}
+
+.nfl-award {
+  color: #D50A0A; /* NFL red */
+}
+
+/* Generic player styles */
+.player-card {
+  border: 1px solid #ccc;
+  padding: 20px;
+  margin: 10px;
+  border-radius: 5px;
+}
+
+.award-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.award-item {
+  margin-bottom: 5px;
+}

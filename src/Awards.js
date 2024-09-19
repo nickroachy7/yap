@@ -4,6 +4,7 @@ import { FaTrophy, FaMedal, FaStar, FaChevronUp, FaChevronDown } from 'react-ico
 function Awards({ player, compact = false, showMore: externalShowMore = false, showButton = true }) {
   const [internalShowMore, setInternalShowMore] = useState(false);
   const showMore = showButton ? internalShowMore : externalShowMore;
+  const isNFL = player.sport === "NFL";
 
   const renderAwardIcons = (count, Icon) => {
     return Array(count).fill().map((_, index) => <Icon key={index} className="text-yellow-400 ml-1" />);
@@ -20,18 +21,31 @@ function Awards({ player, compact = false, showMore: externalShowMore = false, s
     </div>
   );
 
-  const mainAwards = [
-    { label: "NBA Champion", count: player.championships, Icon: FaTrophy },
-    { label: "NBA MVP", count: player.mvps, Icon: FaMedal },
-    { label: "All-NBA First Team", count: player.allNBAFirstTeam, Icon: FaStar },
-  ];
+  const mainAwards = isNFL
+    ? [
+        { label: "Super Bowl Champion", count: player.championships, Icon: FaTrophy },
+        { label: "NFL MVP", count: player.mvps, Icon: FaMedal },
+        { label: "Pro Bowl", count: player.proBowl, Icon: FaStar },
+      ]
+    : [
+        { label: "NBA Champion", count: player.championships, Icon: FaTrophy },
+        { label: "NBA MVP", count: player.mvps, Icon: FaMedal },
+        { label: "All-NBA First Team", count: player.allNBAFirstTeam, Icon: FaStar },
+      ];
 
-  const additionalAwards = [
-    { label: "All-Star", count: player.allStar, Icon: FaStar },
-    { label: "Scoring Champion", count: player.scoringChampion, Icon: FaTrophy },
-    { label: "Defensive Player of the Year", count: player.dpoy, Icon: FaMedal },
-    { label: "Finals MVP", count: player.finalsMVP, Icon: FaTrophy },
-  ];
+  const additionalAwards = isNFL
+    ? [
+        { label: "All-Pro First Team", count: player.allProFirstTeam, Icon: FaStar },
+        { label: "Passing Yards Leader", count: player.passingYardsLeader, Icon: FaTrophy },
+        { label: "Passing TDs Leader", count: player.passingTouchdownsLeader, Icon: FaTrophy },
+        { label: "Super Bowl MVP", count: player.superBowlMVP, Icon: FaMedal },
+      ]
+    : [
+        { label: "All-Star", count: player.allStar, Icon: FaStar },
+        { label: "Scoring Champion", count: player.scoringChampion, Icon: FaTrophy },
+        { label: "Defensive Player of the Year", count: player.dpoy, Icon: FaMedal },
+        { label: "Finals MVP", count: player.finalsMVP, Icon: FaTrophy },
+      ];
 
   return (
     <div className={compact ? '' : 'mt-4'}>
@@ -48,7 +62,6 @@ function Awards({ player, compact = false, showMore: externalShowMore = false, s
             </>
           )}
         </div>
-        {/* Show More button inside the bounding box */}
         {showButton && (
           <div className="bg-gray-50 px-4 py-2 border-t border-gray-200">
             <button

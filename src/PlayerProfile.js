@@ -137,7 +137,7 @@ function PlayerProfile({ player }) {
       
       <Awards player={player} />
 
-      <GameLog games={gameLog} playerName={player.name} />
+      <GameLog games={player.gameLog} playerName={player.name} isNFL={player.sport === "NFL"} />
     </div>
   );
 }

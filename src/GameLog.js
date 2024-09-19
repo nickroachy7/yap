@@ -1,23 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { FaCalendar, FaFilter, FaTimes, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 
-function GameLog({ games, playerName }) {
+function GameLog({ games = [], playerName, isNFL }) {
   const [filteredGames, setFilteredGames] = useState(games);
   const [displayedGames, setDisplayedGames] = useState([]);
   const [showDateFilter, setShowDateFilter] = useState(false);
   const [showStatFilter, setShowStatFilter] = useState(false);
   const [dateRange, setDateRange] = useState({ start: '', end: '' });
-  const [statFilter, setStatFilter] = useState({ stat: 'pts', threshold: 30 });
+  const [statFilter, setStatFilter] = useState(isNFL ? { stat: 'passYards', threshold: 300 } : { stat: 'pts', threshold: 30 });
   const [isFiltered, setIsFiltered] = useState(false);
   const [showMore, setShowMore] = useState(false);
+
+  useEffect(() => {
+    setFilteredGames(games);
+  }, [games]);
 
   useEffect(() => {
     updateDisplayedGames();
   }, [filteredGames, showMore]);
 
   const updateDisplayedGames = () => {
-    const gamesToShow = showMore ? 10 : 5;
-    setDisplayedGames(filteredGames.slice(0, gamesToShow));
+    if (filteredGames) {
+      const gamesToShow = showMore ? filteredGames.length : 5;
+      setDisplayedGames(filteredGames.slice(0, gamesToShow));
+    }
   };
 
   const handleDateChange = (e) => {
@@ -53,7 +59,7 @@ function GameLog({ games, playerName }) {
   const resetFilters = () => {
     setFilteredGames(games);
     setDateRange({ start: '', end: '' });
-    setStatFilter({ stat: 'pts', threshold: 30 });
+    setStatFilter(isNFL ? { stat: 'passYards', threshold: 300 } : { stat: 'pts', threshold: 30 });
     setIsFiltered(false);
     setShowMore(false);
   };
@@ -61,6 +67,15 @@ function GameLog({ games, playerName }) {
   const toggleShowMore = () => {
     setShowMore(!showMore);
   };
+
+  if (!games || games.length === 0) {
+    return (
+      <div className="mt-6">
+        <h3 className="text-xl font-semibold">{playerName}'s Game Log</h3>
+        <p>No game data available.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-6">
@@ -130,9 +145,20 @@ function GameLog({ games, playerName }) {
               onChange={handleStatFilterChange}
               className="border rounded px-2 py-1"
             >
-              <option value="pts">Points</option>
-              <option value="reb">Rebounds</option>
-              <option value="ast">Assists</option>
+              {isNFL ? (
+                <>
+                  <option value="passYards">Pass Yards</option>
+                  <option value="passTD">Pass TD</option>
+                  <option value="int">INT</option>
+                  <option value="rating">Rating</option>
+                </>
+              ) : (
+                <>
+                  <option value="pts">Points</option>
+                  <option value="reb">Rebounds</option>
+                  <option value="ast">Assists</option>
+                </>
+              )}
             </select>
             <input
               type="number"
@@ -160,10 +186,21 @@ function GameLog({ games, playerName }) {
                 <th className="px-4 py-2 text-left">Date</th>
                 <th className="px-4 py-2 text-left">OPP</th>
                 <th className="px-4 py-2 text-left">Result</th>
-                <th className="px-4 py-2 text-right">MIN</th>
-                <th className="px-4 py-2 text-right">PTS</th>
-                <th className="px-4 py-2 text-right">REB</th>
-                <th className="px-4 py-2 text-right">AST</th>
+                {isNFL ? (
+                  <>
+                    <th className="px-4 py-2 text-right">Pass Yds</th>
+                    <th className="px-4 py-2 text-right">Pass TD</th>
+                    <th className="px-4 py-2 text-right">INT</th>
+                    <th className="px-4 py-2 text-right">Rating</th>
+                  </>
+                ) : (
+                  <>
+                    <th className="px-4 py-2 text-right">MIN</th>
+                    <th className="px-4 py-2 text-right">PTS</th>
+                    <th className="px-4 py-2 text-right">REB</th>
+                    <th className="px-4 py-2 text-right">AST</th>
+                  </>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -172,30 +209,41 @@ function GameLog({ games, playerName }) {
                   <td className="px-4 py-2">{game.date}</td>
                   <td className="px-4 py-2">{game.opponent}</td>
                   <td className="px-4 py-2">{game.result}</td>
-                  <td className="px-4 py-2 text-right">{game.min}</td>
-                  <td className="px-4 py-2 text-right">{game.pts}</td>
-                  <td className="px-4 py-2 text-right">{game.reb}</td>
-                  <td className="px-4 py-2 text-right">{game.ast}</td>
+                  {isNFL ? (
+                    <>
+                      <td className="px-4 py-2 text-right">{game.stats.passYards}</td>
+                      <td className="px-4 py-2 text-right">{game.stats.passTD}</td>
+                      <td className="px-4 py-2 text-right">{game.stats.int}</td>
+                      <td className="px-4 py-2 text-right">{game.stats.rating}</td>
+                    </>
+                  ) : (
+                    <>
+                      <td className="px-4 py-2 text-right">{game.min}</td>
+                      <td className="px-4 py-2 text-right">{game.pts}</td>
+                      <td className="px-4 py-2 text-right">{game.reb}</td>
+                      <td className="px-4 py-2 text-right">{game.ast}</td>
+                    </>
+                  )}
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        {!isFiltered && filteredGames.length > 5 && (
+        {filteredGames && filteredGames.length > 5 && (
           <div className="bg-gray-50 px-4 py-2 border-t border-gray-200">
             <button
               className="w-full text-sm font-medium text-gray-700 hover:text-gray-900 flex items-center justify-center"
-              onClick={toggleShowMore}
+              onClick={() => setShowMore(!showMore)}
             >
               {showMore ? (
                 <>
                   <FaChevronUp className="mr-2" />
-                  <span>Less</span>
+                  <span>Show Less</span>
                 </>
               ) : (
                 <>
                   <FaChevronDown className="mr-2" />
-                  <span>More</span>
+                  <span>Show More</span>
                 </>
               )}
             </button>
